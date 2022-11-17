@@ -8,7 +8,7 @@
 <p>The compiler uses the following grammar:</p>
 
 ```
-mypas -> PROGRAM ID ( ID , ID ); declarative imperative .
+mypas -> PROGRAM ID ( ID , ID ) ; declarative imperative .
 declarative -> vardecl sbpdecl
 vardecl -> [ VAR idlist : vartype ; { idlist : vartype ; } ]
 idlist -> ID { , ID }
@@ -21,7 +21,7 @@ stmt -> imperative | ifstmt | whilestmt | repstmt | idstmt | <empty>
 ifstmt ->  IF expr THEN stmt [ ELSE stmt ]
 expr -> smpexpr [ relop smpexpr ]
 smpexpr -> [unary] term { addop term }
-relop -> '>' ! GEQ | '<' | LEQ ! NEQ
+relop -> '>' | GEQ | '<' | LEQ ! NEQ
 unary -> '+' | '-' | NOT
 addop -> '+' | '-' | OR
 term -> fact { mulop fact }

@@ -28,7 +28,7 @@ extern void match(int);
  * ifstmt ->  IF expr THEN stmt [ ELSE stmt ]
  * expr -> smpexpr [ relop smpexpr ]
  * smpexpr -> [unary] term { addop term } 
- * relop -> '>' ! GEQ | '<' | LEQ ! NEQ
+ * relop -> '>' | GEQ | '<' | LEQ ! NEQ
  * unary -> '+' | '-' | NOT
  * addop -> '+' | '-' | OR
  * term -> fact { mulop fact } 
@@ -41,7 +41,7 @@ extern void match(int);
  * idstmt -> fact 
  */
 
-// mypas -> PROGRAM ID ( ID , ID ); declarative imperative .
+// mypas -> PROGRAM ID ( ID , ID ) ; declarative imperative .
 void mypas(void) {
 	match(PROGRAM);
 	match(ID);
@@ -207,7 +207,7 @@ void smpexpr(void) {
 	}
 }
 
-// relop -> '>' ! GEQ | '<' | LEQ ! NEQ
+// relop -> '>' | GEQ | '<' | LEQ ! NEQ
 int relop(void) {
 	switch(lookahead) {
 		case '>': return '>';
