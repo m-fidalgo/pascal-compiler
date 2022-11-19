@@ -267,9 +267,8 @@ void fact(void) {
 			match(ID);
 			if(lookahead == ASGN) {
 				match(ASGN);
-				if(lookahead == '(') arg();
-				else expr();
-			}
+				expr();
+			} else arg();
 			break;
 		case DEC: match(DEC); break;
 		case FLT: match(FLT); break;
@@ -325,9 +324,11 @@ void idstmt(void) {
 
 // match
 void match(int expected) {
+	printf("%s \n", lexeme);
 	if (expected == lookahead) {
 		lookahead = gettoken(source);
 	} else {
+		printf("MISMATCH: %d\n", expected);
 		fprintf(stderr, "token mismatch\n");
 		exit(-2);
 	}
