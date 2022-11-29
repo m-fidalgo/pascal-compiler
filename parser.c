@@ -10,6 +10,8 @@
 #include <parser.h>
 
 int lookahead;
+int loopcount = 1;
+extern int lineNumber;
 extern FILE *source;
 extern void match(int);
 
@@ -20,7 +22,9 @@ extern void match(int);
  * vardecl -> [ VAR idlist : vartype ; { idlist : vartype ; } ]
  * idlist -> ID { , ID }
  * vartype -> INTEGER | REAL | DOUBLE | BOOLEAN
- * sbpdecl -> { PROCEDURE ID parms ; declarative imperative ; | FUNCTION ID parms : vartype ; declarative imperative ; }
+ * sbpdecl -> { procedure | function }
+ * procedure -> PROCEDURE ID parms ; declarative imperative ; 
+ * function -> FUNCTION ID parms : vartype ; declarative imperative ;
  * parms -> [ ( [ VAR ] idlist : vartype { ; [ VAR ] idlist : vartype } ) ]
  * imperative -> BEGIN stmtlist END
  * stmtlist -> stmt { ; stmt }
@@ -101,30 +105,36 @@ void vartype(void) {
 	}
 }
 
-// sbpdecl -> { PROCEDURE ID parms ; declarative imperative ; 
-//            | FUNCTION ID parms : vartype ; declarative imperative ; }
+// sbpdecl -> { procedure | function }
 void sbpdecl(void) {
 	while(lookahead == PROCEDURE || lookahead == FUNCTION) {
-		if(lookahead == PROCEDURE) {
-			match(PROCEDURE);
-			match(ID);
-			parms();
-			match(';');
-			declarative();
-			imperative();
-			match(';');
-		} else {
-			match(FUNCTION);
-			match(ID);
-			parms();
-			match(':');
-			vartype();
-			match(';');
-			declarative();
-			imperative();
-			match(';');
-		}
+		if(lookahead == PROCEDURE) procedure();
+		else function();
 	}
+}
+
+// procedure -> PROCEDURE ID parms ; declarative imperative ; 
+void procedure(void) {
+	match(PROCEDURE);
+	match(ID);
+	parms();
+	match(';');
+	declarative();
+	imperative();
+	match(';');
+}
+
+// function -> FUNCTION ID parms : vartype ; declarative imperative ;
+void function(void) {
+	match(FUNCTION);
+	match(ID);
+	parms();
+	match(':');
+	vartype();
+	match(';');
+	declarative();
+	imperative();
+	match(';');
 }
 
 // parms -> [ ( [ VAR ] idlist : vartype { ; [ VAR ] idlist : vartype } ) ]
@@ -178,14 +188,28 @@ void stmt(void) {
 
 // ifstmt ->  IF expr THEN stmt [ ELSE stmt ]
 void ifstmt(void) {
+	/**/int lbl1, lbl2;/**/
+
 	match(IF);
 	expr();
 	match(THEN);
+
+	//ação semântica 1 - desvio condicional se der 0
+	/**/printf("\tjz .L%d\n", lbl1 = lbl2 = loopcount++);/**/
+
 	stmt();
 	if(lookahead == ELSE) {
 		match(ELSE);
+		
+		//ação semântica 2 - jump
+		/**/printf("\tjmp .L%d\n", lbl2 = loopcount++);/**/
+		/**/printf(".L%d\n", lbl1);/**/
+
 		stmt();
 	}
+
+	//ação semântica 3 - imprimir o rótulo de fim de estrutura
+	/**/printf(".L%d\n", lbl2);/**/
 }
 
 // expr -> smpexpr [ relop smpexpr ]
@@ -303,18 +327,27 @@ void exprlist(void) {
 
 // whilestmt -> WHILE expr DO stmt
 void whilestmt(void) {
+	/**/int lbl1, lbl2;/**/
+	/**/printf(".L%d\n", lbl1 = loopcount++);/**/
 	match(WHILE);
 	expr();
-	match(DO);
+	match(DO);	
+	/**/printf("\tjz .L%d\n", lbl2 = loopcount++);/**/
 	stmt();
+	/**/printf("\tjmp .L%d\n", lbl1);/**/
+	/**/printf(".L%d\n", lbl2);/**/
 }
 
 // repstmt -> REPEAT stmtlist UNTIL expr
 void repstmt(void) {
+	/**/int lbl1;/**/
+	/**/printf(".L%d\n", lbl1 = loopcount++);/**/
+	
 	match(REPEAT);
 	stmtlist();
 	match(UNTIL);
 	expr();
+	/**/printf("\tjz .L%d\n", lbl1);/**/
 }
 
 // idstmt -> fact 
@@ -324,12 +357,11 @@ void idstmt(void) {
 
 // match
 void match(int expected) {
-	printf("%s \n", lexeme);
 	if (expected == lookahead) {
 		lookahead = gettoken(source);
 	} else {
 		printf("MISMATCH: %d\n", expected);
-		fprintf(stderr, "token mismatch\n");
+		fprintf(stderr, "token mismatch at line %d\n", lineNumber);
 		exit(-2);
 	}
 }
