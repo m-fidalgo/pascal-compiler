@@ -13,10 +13,19 @@ char lexeme[MAXIDLEN + 1];
 void skipspaces (FILE * tape)
 {
   int head;
+_skipspaces:
   while (isspace (head = getc (tape))) {
     if (head == '\n') {
       lineNumber++;
     }
+  }
+  if(head == '{') {
+	  while((head = getc(tape)) != '}' && head != EOF) {
+		  if (head == '\n') {
+			lineNumber++;
+		  }
+	  }
+	  goto _skipspaces;
   }
   ungetc (head, tape);
 }

@@ -28,4 +28,5 @@ enum {
 	END,
 };
 
+extern char *keyword[];
 extern int iskeyword(char const *);

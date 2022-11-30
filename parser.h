@@ -6,6 +6,8 @@ extern void vardecl(void);
 extern void idlist(void);
 extern void vartype(void);
 extern void sbpdecl(void);
+extern void procedure(void);
+extern void function(void);
 extern void parms(void);
 extern void imperative(void);
 extern void stmtlist(void);
