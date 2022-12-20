@@ -2,6 +2,7 @@
 #include <string.h>
 #include <keywords.h>
 
+// Palavras reservadas do Pascal são consideradas keywords
 char *keyword[] = {
 	"begin",
 	"program",
@@ -29,6 +30,7 @@ char *keyword[] = {
 	"end",
 };
 
+// Função que verifica se uma dada palavra é uma keyword
 int iskeyword(char const *name) {
 	for(int i = BEGIN; i <= END; i++) {
 		if(strcmp(keyword[i - BEGIN], name) == 0) return i;

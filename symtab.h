@@ -1,13 +1,19 @@
 /**@<symtab.h>::**/
 #include <lexer.h>
 
+// Definição da tabela de símbolos
 typedef struct _symtab_ {
+	// Nome do símbolo
 	char name[MAXIDLEN+1];
-	int objtype; // 0 proc, 1 func, 2 var
-	int type; // 0 vazio, 1 int, 2 real, 3 double, 4 bool
-	int lexlevel; // número de reentrâncias
+	// Tipo de objeto: 0 para procedure, 1 para function e 2 para var
+	int objtype;
+	// Tipo do dado relacionado: 0 para vazio, 1 para int, 2 real, 3 double e 4 bool
+	int type;
+	// Nível léxico do símbolo: número de reentrâncias
+	int lexlevel;
 } SYMTAB;
 
+// Definindo cabeçalho de funções
 extern int lexlevel;
 extern SYMTAB symtab[];
 extern int symtab_first;

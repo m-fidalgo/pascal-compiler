@@ -1,5 +1,6 @@
 /**@<parser.h>::**/
 
+// Definindo cabeçalho de funções
 extern void match(int);
 extern void declarative(void);
 extern void vardecl(void);
