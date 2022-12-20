@@ -1,6 +1,6 @@
 CFLAGS = -I. -g
 
-mypas: mypas.o lexer.o parser.o keywords.o
+mypas: mypas.o lexer.o parser.o keywords.o symtab.o errors.o
 	$(CC) -o $@ $^
 
 clean:

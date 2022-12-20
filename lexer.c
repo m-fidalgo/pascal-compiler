@@ -13,10 +13,20 @@ char lexeme[MAXIDLEN + 1];
 void skipspaces (FILE * tape)
 {
   int head;
+_skipspaces:
   while (isspace (head = getc (tape))) {
     if (head == '\n') {
       lineNumber++;
     }
+  }
+  // verificando comentários
+  if(head == '{') {
+	  while((head = getc(tape)) != '}' && head != EOF) {
+		  if (head == '\n') {
+			lineNumber++;
+		  }
+	  }
+	  goto _skipspaces;
   }
   ungetc (head, tape);
 }
@@ -63,7 +73,7 @@ int isINT (FILE * tape)
         lexeme[i] = 0;
         return OCT;
       }
-      // unget do 1
+      // não é octal -> unget (1)
       ungetc (lexeme[i], tape);
       lexeme[i] = 0;
 
@@ -79,25 +89,26 @@ int isINT (FILE * tape)
           lexeme[i] = 0;
           return HEX;
         }
-        //unget do 2
+        // não é xdigit -> unget (2)
         ungetc (lexeme[i], tape);
         lexeme[i] = 0;
         i--;
       }
-      // unget do 1
+      // não é hexadecimal -> unget (1)
       ungetc (lexeme[i], tape);
       lexeme[i] = 0;
       return DEC;
     }
     i++;
-    // se n entra no if, é o i=1
+
     // fecho de kleene
     while (isdigit (lexeme[i] = getc (tape))) i++;
     ungetc (lexeme[i], tape);
     lexeme[i] = 0;
     return DEC;
   }
-  // unget do 0
+ 
+  // não é digit -> unget (0)
   ungetc (lexeme[i], tape);
   lexeme[i] = 0;
   return 0;
@@ -109,9 +120,11 @@ int isEE (FILE * tape)
   int i = strlen(lexeme);
   int pm;
 
+  // [eE]
   if (toupper (lexeme[i] = getc (tape)) == 'E') {
     i++;
 
+	// ['+''-']?
     if ((lexeme[i] = getc (tape)) != '+' && lexeme[i] != '-') {
       ungetc (lexeme[i], tape);
       lexeme[i] = 0;
@@ -121,6 +134,7 @@ int isEE (FILE * tape)
       pm = 1;
     }
 
+	// [0-9][0-9]*
     if (isdigit (lexeme[i] = getc (tape))) {
       i++;
       while (isdigit (lexeme[i] = getc (tape))) i++;
@@ -153,26 +167,26 @@ int isNUM (FILE * tape)
   int token = 0;
 
   switch (dec) {
-  case OCT:
-  case HEX:
-    return dec;
+	case OCT:
+	case HEX:
+		return dec;
   }
 
   if (dec) {
     token = dec;
+    // DEC '.'[0-9]*
     if ((lexeme[i] = getc (tape)) == '.') {
       i++;
       token = FLT;
       while (isdigit (lexeme[i] = getc (tape))) i++;
       ungetc (lexeme[i], tape);
       lexeme[i] = 0;
-    }
-    else {
+    } else {
       ungetc (lexeme[i], tape);
       lexeme[i] = 0;
     }
-  }
-  else {
+  } else {
+	// '.'[0-9][0-9]*
     if ((lexeme[i] = getc (tape)) == '.') {
       i++;
       if (isdigit (lexeme[i] = getc (tape))) {
@@ -188,17 +202,18 @@ int isNUM (FILE * tape)
         ungetc (lexeme[i], tape);
         lexeme[i] = 0;
       }
-    }
-    else {
+    } else {
       ungetc (lexeme[i], tape);
       lexeme[i] = 0;
     }
   }
+
   if (token) {
     if (isEE (tape)) {
       token = FLT;
     }
   }
+
   return token;
 }
 
