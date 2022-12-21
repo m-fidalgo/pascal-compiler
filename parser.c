@@ -145,6 +145,7 @@ void procedure(void) {
 	/**/int pos = symtab_append_and_set_objtype(lexeme, 0);/**/
 	/**/symtab_set_type(pos, 0);/**/
 	match(ID);
+	// marcar o next para depois que sair do contexto, sobrescrever a symtab
 	/**/symtab_sentinel = symtab_next;/**/
 	parms();
 	match(';');

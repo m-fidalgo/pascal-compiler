@@ -41,7 +41,7 @@ int isID (FILE * tape)
 {
   int i = 0;
 
-  // Se o caracter de início é alfanumérico, sabe-se que é um ID
+  // Se o caracter de início é uma letra, sabe-se que é um ID
   if (isalpha (lexeme[i] = getc (tape))) {
     i++;
   
